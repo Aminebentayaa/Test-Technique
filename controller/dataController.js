@@ -104,15 +104,36 @@ async function getEtablissementsParVille(req, res) {
 }
 
 
-
 async function getPrestationDistribution(req, res) {
   try {
-    const prestationDistribution = await Accomodation.findAll({
-      attributes: ['prestations', [sequelize.fn('COUNT', 'prestations'), 'count']],
+    // Logique pour obtenir la distribution par prestation
+
+    // Exemple de réponse (remplacez cela par votre propre logique)
+    const prestationDistribution = await Accommodation.findAll({
+      attributes: ['prestations', [Sequelize.fn('COUNT', 'id'), 'count']],
       group: ['prestations'],
     });
 
     res.json(prestationDistribution);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+// Count occurrences of each service for "Services Par Chambre" based on ville and nom_de_la_chambre
+async function getServicesParChambre(req, res) {
+  try {
+    const servicesParChambre = await Accomodation.findAll({
+      attributes: [
+        'ville',
+        'nom_de_la_chambre',
+        'services',
+        [sequelize.fn('COUNT', sequelize.col('services')), 'nombre_de_services'],
+      ],
+      group: ['ville', 'nom_de_la_chambre', 'services'],
+    });
+
+    res.json(servicesParChambre);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -124,8 +145,9 @@ module.exports = {
   fetchAndSaveAccomodations,
   getAllAccomodations,
   getAccomodationById,
-  getPrestationDistribution,
+  getServicesParChambre,
   getPmrFamilyRoomCorrelation,
   getCityDistribution,
   getEtablissementsParVille,
+  getPrestationDistribution,
 };

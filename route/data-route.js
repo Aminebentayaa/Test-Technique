@@ -9,6 +9,9 @@ router.get('/city-distribution', dataController.getCityDistribution);
 router.get('/pmr-family-room-correlation', dataController.getPmrFamilyRoomCorrelation);
 router.get('/prestation-distribution', dataController.getPrestationDistribution);
 router.get('/etablissements-par-ville', dataController.getEtablissementsParVille);
+router.get('/services-par-chambre', dataController.getServicesParChambre);
+
+
 
 
 module.exports = router;
