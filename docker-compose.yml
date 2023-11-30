@@ -1,11 +1,17 @@
 version: "3.8"
 services:
-  image: mysql
+  db:
+    image: mysql
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - ~/apps/mysql:/var/lib/mysql
-   
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_PASSWORD: ""
+      MYSQL_USER: root
+      MYSQL_DATABASE: dataviz
+
   api:
     build:
       dockerfile: Dockerfile.backend
@@ -13,11 +19,12 @@ services:
     volumes:
       - /app/node_modules
       - ./:/app
-      environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_PASSWORD=
+    environment:
+      - MYSQL_ROOT_PASSWORD=""
+      - MYSQL_PASSWORD=""
       - MYSQL_USER=root
       - MYSQL_DATABASE=dataviz
+
   client:
     stdin_open: true
     environment:
