@@ -1,6 +1,6 @@
 // controller.js
 const axios = require('axios');
-const TrafficRestriction = require('./model/TrafficRestriction');
+const TrafficRestriction = require('../model/TrafficRestriction');
 
 async function fetchAndSaveData(req, res) {
   try {
