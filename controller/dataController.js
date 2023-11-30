@@ -1,21 +1,29 @@
-// controller.js
+// backend/controllers/dataController.js
 const axios = require('axios');
-const TrafficRestriction = require('../model/TrafficRestriction');
+const sequelize = require('../sequelize');
+const Accomodation = require('../model/Accomodation');  // Make sure the path is correct
 
-async function fetchAndSaveData(req, res) {
+async function fetchAndSaveAccomodations(req, res) {
   try {
-    const apiResponse = await axios.get('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/jsv_perim_restriction_circulation/records?limit=20');
+    // Fetch data from the API
+    const apiResponse = await axios.get('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/accessibilite-des-hebergements-en-ile-de-france-paris-je-t-aime/records?limit=5');
+
+    // Log the entire API response
+    console.log(apiResponse.data);
+
+    // Assuming the data you need is nested under apiResponse.data.records
     const dataToInsert = apiResponse.data.results;
+    console.log(apiResponse.data);
+    // Ensure the database is synchronized
+    
 
-    await TrafficRestriction.sync({ force: true });
-
+    // Loop through the data and insert into the database
     for (const data of dataToInsert) {
-      await TrafficRestriction.create({
-        reglement: data.reglement,
-        limitation: data.limitation,
-        vitesse: data.vitesse,
-        categorie: data.categorie,
-      });
+      try {
+        await Accomodation.create(data);
+      } catch (error) {
+        console.error('Error creating accomodation:', error);
+      }
     }
 
     res.send('Data fetched and saved to the database');
@@ -25,4 +33,99 @@ async function fetchAndSaveData(req, res) {
   }
 }
 
-module.exports = { fetchAndSaveData };
+async function getAllAccomodations(req, res) {
+  try {
+    const accommodations = await Accomodation.findAll();
+    res.json(accommodations);
+  } catch (error) {
+    console.error('Error fetching all accommodations:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getAccomodationById(req, res) {
+  const { id } = req.params;
+  try {
+    const accommodation = await Accomodation.findByPk(id);
+    if (accommodation) {
+      res.json(accommodation);
+    } else {
+      res.status(404).send('Accommodation not found');
+    }
+  } catch (error) {
+    console.error('Error fetching accommodation by ID:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getCityDistribution(req, res) {
+  try {
+    const cityDistribution = await Accomodation.findAll({
+      attributes: ['ville', [sequelize.fn('COUNT', 'ville'), 'count']],
+      group: ['ville'],
+    });
+
+    res.json(cityDistribution);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getPmrFamilyRoomCorrelation(req, res) {
+  try {
+    const correlation = await Accomodation.findAll({
+      attributes: [
+        [sequelize.fn('AVG', sequelize.col('nb_chambres_pmr')), 'average_pmr_rooms'],
+        [sequelize.fn('AVG', sequelize.col('nb_chambres_famille')), 'average_family_rooms'],
+      ],
+    });
+
+    res.json(correlation);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function getEtablissementsParVille(req, res) {
+  try {
+    // Utilisez sequelize pour récupérer les établissements par ville
+    const etablissementsParVille = await Accomodation.findAll({
+      attributes: ['ville', 'etablissement'],
+      order: ['ville', 'etablissement'],
+    });
+
+    res.json(etablissementsParVille);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+
+
+async function getPrestationDistribution(req, res) {
+  try {
+    const prestationDistribution = await Accomodation.findAll({
+      attributes: ['prestations', [sequelize.fn('COUNT', 'prestations'), 'count']],
+      group: ['prestations'],
+    });
+
+    res.json(prestationDistribution);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+
+module.exports = {
+  fetchAndSaveAccomodations,
+  getAllAccomodations,
+  getAccomodationById,
+  getPrestationDistribution,
+  getPmrFamilyRoomCorrelation,
+  getCityDistribution,
+  getEtablissementsParVille,
+};

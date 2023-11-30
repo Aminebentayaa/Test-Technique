@@ -1,29 +1,14 @@
-// data-route.js
+// backend/routes/accommodationRoute.js
 const { Router } = require('express');
 const router = Router();
-const TrafficRestriction = require('../model/TrafficRestriction'); // Assurez-vous que le chemin d'importation est correct
+const dataController = require('../controller/dataController');
 
-router.get('/analyze-data', async (req, res) => {
-  try {
-    const averageSpeed = await TrafficRestriction.findOne({
-      attributes: [[sequelize.fn('AVG', sequelize.col('vitesse')), 'average_speed']],
-    });
 
-    res.send(`Average Speed Limit: ${averageSpeed.dataValues.average_speed}`);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-});
+router.get('/fetch-and-save-accomodations', dataController.fetchAndSaveAccomodations);
+router.get('/city-distribution', dataController.getCityDistribution);
+router.get('/pmr-family-room-correlation', dataController.getPmrFamilyRoomCorrelation);
+router.get('/prestation-distribution', dataController.getPrestationDistribution);
+router.get('/etablissements-par-ville', dataController.getEtablissementsParVille);
 
-router.get('/get-all-data', async (req, res) => {
-  try {
-    const allData = await TrafficRestriction.findAll();
-    res.json(allData);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 module.exports = router;
