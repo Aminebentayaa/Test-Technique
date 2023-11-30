@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  image: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - ~/apps/mysql:/var/lib/mysql
+   
+  api:
+    build:
+      dockerfile: Dockerfile.backend
+      context: "./"
+    volumes:
+      - /app/node_modules
+      - ./:/app
+      environment:
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_PASSWORD=
+      - MYSQL_USER=root
+      - MYSQL_DATABASE=dataviz
+  client:
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    build:
+      dockerfile: Dockerfile.frontend
+      context: ./frontend
+    volumes:
+      - /app/node_modules
+      - ./front:/app
