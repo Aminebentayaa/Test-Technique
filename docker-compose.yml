@@ -28,6 +28,7 @@ services:
       - "3000:3000"
     depends_on:
       - mysql
+    command: ["npm", "run", "start","start-with-wait"]  
 
   client:
     build:

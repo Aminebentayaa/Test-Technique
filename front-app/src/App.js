@@ -49,32 +49,34 @@ const App = () => {
   };
 
   const renderPmrFamilyRoomCorrelationChart = () => {
-    if (!pmrFamilyRoomCorrelationData || !pmrFamilyRoomCorrelationData.average_pmr_rooms) {
+    if (!pmrFamilyRoomCorrelationData || !pmrFamilyRoomCorrelationData[0]) {
       return <p>Loading PMR family room correlation data...</p>;
     }
-
+  
     const options = {
       xaxis: { categories: ['Average PMR Rooms', 'Average Family Rooms'] },
     };
-
+  
     const series = [
       {
         name: 'Average PMR Rooms',
-        data: [pmrFamilyRoomCorrelationData.average_pmr_rooms],
+        data: [parseFloat(pmrFamilyRoomCorrelationData[0].average_pmr_rooms)],
       },
       {
         name: 'Average Family Rooms',
-        data: [pmrFamilyRoomCorrelationData.average_family_rooms],
+        data: [parseFloat(pmrFamilyRoomCorrelationData[0].average_family_rooms)],
       },
     ];
-
+  
     return (
       <div>
         <h2>PMR Family Room Correlation Chart</h2>
+        {/* Assuming you're using a chart library like ApexCharts */}
         <Chart options={options} series={series} type="bar" height={350} />
       </div>
     );
   };
+  
 
   const renderEtablissementsParVilleChart = () => {
     if (!etablissementsParVilleData || etablissementsParVilleData.length === 0) {
@@ -94,7 +96,7 @@ const App = () => {
 
     return (
       <div>
-        <h2>Etablissements Par Ville Chart</h2>
+        <h2>Nb Etablissements Par Ville Chart</h2>
         <Chart options={options} series={series} type="bar" height={350} />
       </div>
     );

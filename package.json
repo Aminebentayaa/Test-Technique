@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start-with-wait": "node start-with-wait.js",
     "start": "node app.js"
   },
   "author": "",
@@ -19,6 +20,7 @@
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
-    "sequelize": "^6.35.1"
+    "sequelize": "^6.35.1",
+    "wait-for": "^2.1.1"
   }
 }
