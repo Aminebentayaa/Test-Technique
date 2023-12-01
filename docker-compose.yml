@@ -1,16 +1,17 @@
-version: "3.8"
+version: "3.5"
+
 services:
-  db:
-    image: mysql
+  mysql:
+    image: mysql:8
+    container_name: mysqldb
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: databiz
     ports:
       - "3306:3306"
     volumes:
-      - ~/apps/mysql:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ""
-      MYSQL_PASSWORD: ""
-      MYSQL_USER: root
-      MYSQL_DATABASE: dataviz
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Mount the initialization script
 
   api:
     build:
@@ -20,18 +21,29 @@ services:
       - /app/node_modules
       - ./:/app
     environment:
-      - MYSQL_ROOT_PASSWORD=""
-      - MYSQL_PASSWORD=""
       - MYSQL_USER=root
-      - MYSQL_DATABASE=dataviz
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=databiz
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
 
   client:
-    stdin_open: true
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     build:
       dockerfile: Dockerfile.frontend
-      context: ./frontend
+      context: ./front-app
     volumes:
       - /app/node_modules
-      - ./front:/app
+      - ./front-app:/app
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - "3001:3000"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  mysql_data:

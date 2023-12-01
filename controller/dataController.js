@@ -1,9 +1,10 @@
 // backend/controllers/dataController.js
+// backend/controllers/dataController.js
 const axios = require('axios');
 const sequelize = require('../sequelize');
-const Accomodation = require('../model/Accomodation');  // Make sure the path is correct
+const Accomodation = require('../model/Accomodation');
 
-async function fetchAndSaveAccomodations(req, res) {
+async function fetchAndSaveAccomodations() {
   try {
     // Fetch data from the API
     const apiResponse = await axios.get('https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/accessibilite-des-hebergements-en-ile-de-france-paris-je-t-aime/records?limit=5');
@@ -15,7 +16,6 @@ async function fetchAndSaveAccomodations(req, res) {
     const dataToInsert = apiResponse.data.results;
     console.log(apiResponse.data);
     // Ensure the database is synchronized
-    
 
     // Loop through the data and insert into the database
     for (const data of dataToInsert) {
@@ -26,12 +26,14 @@ async function fetchAndSaveAccomodations(req, res) {
       }
     }
 
-    res.send('Data fetched and saved to the database');
+    console.log('Data fetched and saved to the database');
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
   }
 }
+
+// Call fetchAndSaveAccomodations once on server start
+fetchAndSaveAccomodations();
 
 async function getAllAccomodations(req, res) {
   try {
